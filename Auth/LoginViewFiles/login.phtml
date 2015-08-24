@@ -1,0 +1,84 @@
+        <!-- Google plus signin -->
+        <meta name="google-signin-clientid" content="1087664547974-q7poapa4ivmp26h2hnjamnq97ajusv7i.apps.googleusercontent.com" />
+        <meta name="google-signin-scope" content="https://www.googleapis.com/auth/plus.profile.emails.read" />
+        <meta name="google-signin-requestvisibleactions" content="http://schema.org/AddAction" />
+        <meta name="google-signin-cookiepolicy" content="single_host_origin" />
+
+<div id="loginpopup">
+<input type="text" name="email"/><br/>
+<input type="password" name="password"/><br/>
+<button id="leaseplan_login">Belépés</button>
+</div>
+<div id="registerpopup">
+    E-mail cím:<input type="text" name="reg_email" /><br/>
+    Vezetéknév:<input type="text" name="firstname" /><br/>
+    Keresztnév:<input type="text" name="lastname" /><br/>
+    Jelszó:<input type="password" name="pw1" /><br/>
+    Jelszó megerősítés:<input type="password" name="pw2" /><br/>
+    <button id="register">Regisztrálok!</button><div id="reg_notice"></div>
+</div>
+
+
+<!-- Facebook -->
+<div id="fb-root">
+            </div>
+            // facebook asynchron load
+(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  js.src = "//connect.facebook.net/hu_HU/sdk.js#xfbml=1&appId=689787131119707&version=v2.0";
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+// amikor a facebook login megvolt, akkor hívódik meg
+	function sendlogin() {
+		// hozzáférünk az apihoz és lekérjük az alapvető infókat
+		FB.api('/me', function(response) {
+			// amit aztán ajaxon elküldünk
+			GW.sendLoginInfo("facebook",
+			        response.first_name,
+		            response.last_name,
+			        response.email);
+		});
+	}
+		// google plus signin callback
+	function signinCallback(authResult) {
+		  if (authResult['status']['signed_in']) {
+
+			  var request = gapi.client.plus.people.get({
+				  'userId' : 'me'
+				});
+
+				request.execute(function(resp) {
+					GW.sendLoginInfo("googleplus",
+					        resp.name.familyName,
+				            resp.name.givenName,
+					        resp.emails[0].value);
+						
+				});
+		    // Update the app to reflect a signed in user
+		    // Hide the sign-in button now that the user is authorized, for example:
+		    document.getElementById('signinButton').setAttribute('style', 'display: none');
+		  }
+		}
+	
+	 /* Executed when the APIs finish loading */
+	 function render() {
+	   gapi.client.load('plus', 'v1');
+	   // Additional params including the callback, the rest of the params will
+	   // come from the page-level configuration.
+	   var additionalParams = {
+	     'callback': signinCallback
+	   };
+
+	   // Attach a click listener to a button to trigger the flow.
+	   var signinButton = document.getElementById('signinButton');
+	   signinButton.addEventListener('click', function() {
+	     gapi.auth.signIn(additionalParams); // Will use page level configuration
+	   });
+	 }
+	 GW.linkedinLogin = function(response) {
+	IN.API.Raw('people/~:(id, email-address)?format=json').method('GET').body('').result(function(response) {
+		console.log(response);
+	});
+}
